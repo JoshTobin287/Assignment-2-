@@ -70,8 +70,8 @@ def get_banner(host, port, timeout):
         data = s.recv(4096)
         s.close 
         return data.encode(errors="ignore") if data else None
-        except:
-            return None
+    except:
+        return None
 
 def main():
     args = parse_args()
