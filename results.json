@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "run_started": "2025-12-10T20:14:55.233997Z",
+    "args": {
+      "targets": "targets.txt",
+      "ports": "80,443,22",
+      "workers": 20,
+      "http": false,
+      "tls": false,
+      "output": "",
+      "timeout": 5.0
+    }
+  },
+  "targets": {}
+}

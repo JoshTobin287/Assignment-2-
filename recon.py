@@ -2,7 +2,7 @@
 import argparse
 import socket
 import time
-import datetime
+from datetime import datetime
 import json
 
 
@@ -44,6 +44,7 @@ def parse_args():
 
     parser.add_argument(
         "--output",
+        default="",
         help="Path prefix for results; tool writes PREFIX.results.json and PREFIX.results.csv",
     )
 
@@ -56,6 +57,22 @@ def parse_args():
 
     return parser.parse_args()        
 
+def parse_ports(port_string):
+    ports = set()
+    for part in port_string.split(","):
+        part = part.strip()
+        if "-" in part:
+            start, end = part.split("-")
+            ports.update(range(int(start), int(end)+1))
+        else:
+            ports.add(int(part))
+    return sorted(ports)
+
+def load_targets(path):
+        with open(path) as f:
+            return [line.strip() for line in f if line.strip()]
+
+
 
 def tcp_connect(host, port, timeout):
     try:
@@ -65,6 +82,17 @@ def tcp_connect(host, port, timeout):
 
     except ConnectionRefusedError: 
         return "closed"
+
+def get_banner(host, port, timeout):
+    try:
+        s = socket.create_connection((host, port), timeout)
+        data = s.recv(4096)
+        s.close()
+        if not data:
+            return None
+        return data.decode(errors="ignore")
+    except:
+        return None
 
 def main():
     args = parse_args()
@@ -83,20 +111,40 @@ def main():
     print(f"\nLoaded {len(targets)} targets and {len(ports)} ports")
     print("Starting TCP Connect Scan...\n")
 
-    for host, override_port in targets:
+    results = {
+        "meta": {
+            "run_started": datetime.utcnow().isoformat() + "Z",
+            "args": vars(args)
+        },
+        "targets": {}
+    }
 
-        scan_ports = [override_port] if override_port else ports
+    for host in targets:
+        results["targets"][host] = {"ports": {}}
+        print(f"--- {host} ---")
 
-        print(f"\n--- Scanning {host} ---")
-
-        for port in scan_ports:
+        for port in ports:
             status = tcp_connect(host, port, args.timeout)
+            port_entry = {"status": status}
 
             if status == "open":
-                print(f"[OPEN]     {host}:{port}")
+                banner = get_banner(host, port, args.timeout)
+                port_entry["banner"] = banner
+                if banner:
+                    print(f"{host}:{port} -> {status} | Banner: {banner[:60]}...")
+                else:
+                    print(f"{host}:{port} -> {status} | Banner: None")
+            else:
+                print(f"{host}:{port} -> {status}")
 
-            elif status == "Closed":
-                print(f"[Closed]     {host}:{port}")
+            results["targets"][host]["ports"][str(port)] = port_entry
+
+    output_file = f"{args.output}results.json"
+    with open(output_file, "w") as f:
+            json.dump(results, f, indent=2)
+
+    print(f"\nResults saved to: {output_file}")
+
 
 
 if __name__ == "__main__":
