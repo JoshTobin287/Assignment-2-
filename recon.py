@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import socket
+import time
+import datetime
+import json
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -50,28 +54,17 @@ def parse_args():
         help="Per-connection timeout in seconds (float OK)",
     )
 
-    return parser.parse_args()
-
+    return parser.parse_args()        
 
 
 def tcp_connect(host, port, timeout):
     try:
-        connection = socket.create_connection((host, port), timeout)
-        connection.close()
-        return True
+        s = socket.create_connection((host, port), timeout=timeout)
+        s.close()
+        return "open"
 
-    except Excetiption: 
-
-        return False
-
-def get_banner(host, port, timeout):
-    try:
-        s = socket.create_connection((host, port), timeout)
-        data = s.recv(4096)
-        s.close 
-        return data.encode(errors="ignore") if data else None
-    except:
-        return None
+    except ConnectionRefusedError: 
+        return "closed"
 
 def main():
     args = parse_args()
@@ -83,6 +76,27 @@ def main():
     print(f"  tls     : {args.tls}")
     print(f"  output  : {args.output}")
     print(f"  timeout : {args.timeout}")
+
+    targets = load_targets(args.targets)
+    ports = parse_ports(args.ports)
+
+    print(f"\nLoaded {len(targets)} targets and {len(ports)} ports")
+    print("Starting TCP Connect Scan...\n")
+
+    for host, override_port in targets:
+
+        scan_ports = [override_port] if override_port else ports
+
+        print(f"\n--- Scanning {host} ---")
+
+        for port in scan_ports:
+            status = tcp_connect(host, port, args.timeout)
+
+            if status == "open":
+                print(f"[OPEN]     {host}:{port}")
+
+            elif status == "Closed":
+                print(f"[Closed]     {host}:{port}")
 
 
 if __name__ == "__main__":
