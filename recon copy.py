@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import argparse
-import socket
 import time
 from datetime import datetime, timezone
 import json
-import ssl
+
 
 
 def parse_args():
@@ -74,18 +73,16 @@ def load_targets(path):
             return [line.strip() for line in f if line.strip()]
 
 
-#tcp connect
+
 def tcp_connect(host, port, timeout):
     try:
         s = socket.create_connection((host, port), timeout=timeout)
         s.close()
         return "open"
+
     except ConnectionRefusedError: 
         return "closed"
-    except:
-        return "filtered"
 
-#banner
 def get_banner(host, port, timeout):
     try:
         s = socket.create_connection((host, port), timeout)
@@ -97,7 +94,6 @@ def get_banner(host, port, timeout):
     except:
         return None
 
-#http
 def http_probe(host, port, timeout):
     url = f"http://{host}:{port}/"
 
@@ -123,9 +119,6 @@ def http_probe(host, port, timeout):
         "favicon_sha256": None
     }
 
-    return result
-
-#https
 def https_probe(host, port, timeout):
     try:
         ctx = ssl.create_default_context()
@@ -133,7 +126,6 @@ def https_probe(host, port, timeout):
         s = ctx.wrap_socket(raw, server_hostname=host)
         
         cert = s.getpeercert()
-        s.close()
 
         subject = dict(x[0] for x in cert.get("subject", [])) if cert else {}
         cn = subject.get("commonName")
@@ -145,7 +137,9 @@ def https_probe(host, port, timeout):
                 exp = datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
                 expired = exp < datetime.utcnow()
             except:
-                expired = False
+                pass
+
+        s.close()
 
         return {
             "subject_cn": cn,
@@ -157,7 +151,7 @@ def https_probe(host, port, timeout):
     except:
         return None
 
-#main
+
 def main():
     args = parse_args()
     print("Arguments Received:")
@@ -177,7 +171,7 @@ def main():
 
     results = {
         "meta": {
-            "run_started": datetime.now(timezone.utc).isoformat(),
+            "run_started": now_utc(),
             "args": vars(args),
             "resumed": False
         },
@@ -189,22 +183,23 @@ def main():
         print(f"--- {host} ---")
 
         for port in ports:
-            port_entry = {}
             status = tcp_connect(host, port, args.timeout)
-            port_entry["status"] = status
+            port_entry = {"status": status}
 
             if status == "open":
                 banner = get_banner(host, port, args.timeout)
                 port_entry["banner"] = banner
-                print(f"{host}:{port} -> open | Banner: {banner[:60] + '...' if banner else 'None'}")
+                if banner:
+                    print(f"{host}:{port} -> {status} | Banner: {banner[:60]}...")
+                else:
+                    print(f"{host}:{port} -> {status} | Banner: None")
             else:
                 print(f"{host}:{port} -> {status}")
-
-
+            
             if args.http and port == 80:
                     port_entry["http"] = http_probe(host, port, args.timeout)
 
-            if args.tls and port == 443:
+            if args.http and port == 443:
                     port_entry["tls"] = https_probe(host, port, args.timeout)
 
 
