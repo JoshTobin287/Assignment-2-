@@ -119,6 +119,14 @@ def http_probe(host, port, timeout):
         "favicon_sha256": None
     }
 
+def https_probe(host, port, timeout):
+    try:
+        ctx = ssl.create_default_context()
+        raw = socket.create_connection((host, port), timeout)
+        s = ctx.wrap_socket(raw, server_hostname=host)
+        
+        cert = s.getpeercert()
+
 
 def main():
     args = parse_args()
