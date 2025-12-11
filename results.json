@@ -1,9 +1,9 @@
 {
   "meta": {
-    "run_started": "2025-12-10T20:27:14.332640Z",
+    "run_started": "2025-12-11T19:36:39.855225Z",
     "args": {
       "targets": "targets.txt",
-      "ports": "80,443,22",
+      "ports": "80",
       "workers": 20,
       "http": false,
       "tls": false,

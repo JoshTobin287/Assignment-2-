@@ -94,6 +94,32 @@ def get_banner(host, port, timeout):
     except:
         return None
 
+def http_probe(host, port, timeout):
+    url = f"http://{host}:{port}/"
+
+    try:
+        s = socket.create_connection((host, port), timeout)
+        req = f"GET / HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n"
+        s.sendall(req.encode())
+        raw = s.recv(65535)
+        s.close()
+
+        resp = raw.decode(errors="ignore")
+    except:
+        return None
+
+    result = {
+        "url": url,
+        "final_url": url,
+        "status_code": None,
+        "title": None,
+        "meta_description": None,
+        "server_header": None,
+        "cookies": [],
+        "favicon_sha256": None
+    }
+
+
 def main():
     args = parse_args()
     print("Arguments Received:")
@@ -136,6 +162,10 @@ def main():
                     print(f"{host}:{port} -> {status} | Banner: None")
             else:
                 print(f"{host}:{port} -> {status}")
+            
+            if args.http and port == 80:
+                    entry["http"] = http_probe(host, port, args.timeout)
+
 
             results["targets"][host]["ports"][str(port)] = port_entry
 
