@@ -1,6 +1,6 @@
 {
   "meta": {
-    "run_started": "2025-12-11T21:00:36.814364+00:00",
+    "run_started": "2025-12-11T22:25:05.264620+00:00",
     "args": {
       "targets": "targets.txt",
       "ports": "80,443",
@@ -40,16 +40,7 @@
         "80": {
           "status": "open",
           "banner": null,
-          "http": {
-            "url": "http://example.com:80/",
-            "final_url": "http://example.com:80/",
-            "status_code": null,
-            "title": null,
-            "meta_description": null,
-            "server_header": null,
-            "cookies": [],
-            "favicon_sha256": null
-          }
+          "http": null
         },
         "443": {
           "status": "open",
