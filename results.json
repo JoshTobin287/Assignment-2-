@@ -1,6 +1,6 @@
 {
   "meta": {
-    "run_started": "2025-12-12T20:15:33.383614+00:00",
+    "run_started": "2025-12-12T21:06:51.483091+00:00",
     "args": {
       "targets": "targets.txt",
       "ports": "80,443",
@@ -17,21 +17,20 @@
       "ports": {
         "80": {
           "status": "open",
-          "banner": null,
           "http": {
             "url": "http://nmap.scanme.org:80/",
             "final_url": "http://nmap.scanme.org:80/",
             "status_code": null,
-            "title": null,
+            "title": "Go ahead and ScanMe!",
             "meta_description": null,
-            "server_header": null,
+            "server_header": "Apache/2.4.7 (Ubuntu)",
             "cookies": [],
             "favicon_sha256": null
-          }
+          },
+          "banner": "Apache/2.4.7 (Ubuntu)"
         },
         "443": {
-          "status": "filtered",
-          "tls": null
+          "status": "filtered"
         }
       }
     },
@@ -39,27 +38,27 @@
       "ports": {
         "80": {
           "status": "open",
-          "banner": null,
           "http": {
             "url": "http://example.com:80/",
             "final_url": "http://example.com:80/",
             "status_code": null,
-            "title": null,
+            "title": "Example Domain",
             "meta_description": null,
             "server_header": null,
             "cookies": [],
             "favicon_sha256": null
-          }
+          },
+          "banner": null
         },
         "443": {
           "status": "open",
-          "banner": null,
           "tls": {
             "subject_cn": "*.example.com",
             "notAfter": "Jan 15 23:59:59 2026 GMT",
             "expired": false,
             "weak_params": []
-          }
+          },
+          "banner": "*.example.com"
         }
       }
     }

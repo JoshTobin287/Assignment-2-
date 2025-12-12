@@ -91,11 +91,15 @@ def tcp_connect(host, port, timeout):
 def get_banner(host, port, timeout):
     try:
         s = socket.create_connection((host, port), timeout)
-        data = s.recv(4096)
+        s.settimeout(2.0)
+
+        try:
+            data = s.recv(4096)
+        except socket.timeout:
+            date = b""
         s.close()
-        if not data:
-            return None
-        return data.decode(errors="ignore") if date else None
+
+        return data.decode(errors="ignore") if data else None
     except:
         return None
 
@@ -127,16 +131,20 @@ def http_probe(host, port, timeout):
     match = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', text, re.IGNORECASE)
     meta_description = match.group(1).strip() if match else None
 
+    match = re.search(r"<title>(.*?)</title>", text, re.IGNORECASE | re.DOTALL)
+    title = match.group(1).strip() if match else None
+
     result = {
         "url": url,
         "final_url": url,
         "status_code": None,
-        "title": None,
-        "meta_description": None,
-        "server_header": None,
+        "title": title,
+        "meta_description": meta_description,
+        "server_header": server_header,
         "cookies": [],
         "favicon_sha256": None
     }
+    return result
 
 #https
 def https_probe(host, port, timeout):
@@ -181,20 +189,23 @@ def scan_port(host, port, timeout, do_http, do_tls, retries):
     entry = {"status": status}
 
     if status == "open":
-        entry["banner"] = get_banner(host, port, timeout)
+      
+        if port not in (80, 443):
+            entry["banner"] = get_banner(host, port, timeout)
 
         if do_http and port == 80:
             entry["http"] = http_probe(host, port, timeout)
+            entry["banner"] = entry["http"]["server_header"]
 
         if do_tls and port == 443:
             entry["tls"] = https_probe(host, port, timeout)
+            entry["banner"] = entry["tls"]["subject_cn"]
+    return entry
 
-    return host, port, entry
-
-    def save_csv(results, prefix):
-        with open(f"{prefix}results.csv", "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow([
+def save_csv(results, prefix):
+    with open(f"{prefix}results.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([
             "host", "port", "status", "banner",
             "http_title", "http_server", "http_meta",
             "tls_cn", "tls_expired"
@@ -261,7 +272,7 @@ def main():
 
     save_csv(results, args.output)
 
-    print(f"\nResults saved to: {json_path}")
+    print(f"\nResults saved to: {output_file}")
     print(f"CSV saved to: {args.output}results.csv")
 
 

@@ -1,0 +1,5 @@
+host,port,status,banner,http_title,http_server,http_meta,tls_cn,tls_expired
+nmap.scanme.org,80,open,Apache/2.4.7 (Ubuntu),Go ahead and ScanMe!,Apache/2.4.7 (Ubuntu),,,
+nmap.scanme.org,443,filtered,,,,,,
+example.com,80,open,,Example Domain,,,,
+example.com,443,open,*.example.com,,,,*.example.com,False
