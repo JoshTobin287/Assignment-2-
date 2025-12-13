@@ -1,5 +1,8 @@
 # Assignment-2
 
+Name: Josh Tobin
+Student ID: C00309712
+
 *Project overview*
 This project i have made is a python based comand line tool.
 
