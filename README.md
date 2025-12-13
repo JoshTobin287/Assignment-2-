@@ -97,19 +97,6 @@ Rate limiting
 This project was quite difficult and challenging, a lot of struggle was had with most part of  the project, i could have improved and applied extra features and features i didnt implment but i could not figure them out.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 *References:*
 https://docs.python.org/3/library/argparse.html
 https://www.geeksforgeeks.org/command-line-arguments-in-python/
