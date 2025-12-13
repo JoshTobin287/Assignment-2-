@@ -189,10 +189,6 @@ def scan_port(host, port, timeout, do_http, do_tls, retries):
     entry = {"status": status}
 
     if status == "open":
-      
-        if port not in (80, 443):
-            entry["banner"] = get_banner(host, port, timeout)
-
         if do_http and port == 80:
             entry["http"] = http_probe(host, port, timeout)
             entry["banner"] = entry["http"]["server_header"]
