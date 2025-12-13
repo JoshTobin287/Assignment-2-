@@ -1,6 +1,57 @@
 # Assignment-2
 
-To run code: python3 recon.py --targets targets.txt --ports 80,443 --http --tls
+*Project overview*
+This project i have made is a python based comand line tool.
+
+What this tool does for my project is scans a list of targets i have listed such as nmap.scanme.org and example.com and it: 
+
+Performs TCP connect scans against ports i have specified.
+Identifies open, closed and filtered ports.
+Performs HTTP probing on port 80.
+Performs TLS certificate inspection on port 443.
+Collects basic banner-style information from HTTP headers and TLS certificates.
+Outputs structured files for JSON and CSV.
+
+This tool i have made is simple and reliable to be used against targets using only python standard libraries.
+
+*Requirements*
+
+Libraries used:
+argparse
+socket
+ssl
+datetime
+json
+csv
+re
+time
+
+I did not use any external libraries.
+
+*Running the code*
+To run my code you will need to enter this into this command line: python3 recon.py --targets targets.txt --ports 80,443 --http --tls
+
+First i specify the python file to be ran.
+Second i target the targets.txt file with my targets nmap.scanme.org and example.com.
+Third i sepecify the ports 80 commonly used for HTTP services and 443 commonly used for HTTPS/TLS services.
+Enables HTTP probing on discovered services, extracting information.
+Enables TLS certificate inspection on services that support TLS.
+
+And ensure that there are targets withing the targets.txt file so that the command can run.
+
+*Features*
+
+
+
+
+
+
+
+
+
+
+
+
 
 References: 
 https://docs.python.org/3/library/argparse.html
