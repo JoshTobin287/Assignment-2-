@@ -41,6 +41,46 @@ And ensure that there are targets withing the targets.txt file so that the comma
 
 *Features*
 
+TCP connect scan(not raw SYN):
+
+Performs a standard TCP connect scan.
+Identfies port states as open, closed or filtered.
+Records timeout status
+
+Banner collection: 
+
+For open ports, reads intial banner up to 4096 bytes and uses a non blocking recv with configure timeout
+Saves raw banner in results
+
+HTTP probing:
+
+Performs on port 80 and sends a basic HTTP GET request.
+Extracts HTML title, desctiption and server header
+Used as banner style identifiers
+
+TLS certificate analysis:
+
+Performs on port 443 and establishes a tls connection
+Extracts subject cn, certificate expiry and expiry status at runtime
+TLS certificate fields are used as banner-style identifiers
+
+Fingerprint web-application / CMS heuristic:
+
+This was attempted but ultimately did not make it into my final version of my project.
+
+Structured output:
+
+Json output - Results are stored per target and per port including port status, http metadate, tls certificate details and banner style infromation from HTTP or TLS
+
+CSV output - Each row represents a scanned port and includes host, port, status, banner, http title, server header and meta decription and tls subject CN and expiry status 
+
+Concurrency and rate control:
+
+This was partially implemented into my project no workers were used and other features, although no crashes on network and retires implemented but no resume support
+
+
+
+
 
 
 
