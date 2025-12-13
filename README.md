@@ -78,6 +78,20 @@ Concurrency and rate control:
 
 This was partially implemented into my project no workers were used and other features, although no crashes on network and retires implemented but no resume support
 
+ Other features that were either limited, attempted or not implmented in my project: 
+
+Concurency and worker pool usage
+Raw socket banner grabbing for non-HTTP services
+HTTP redirect following
+Cookie collection or response body sampling
+TLS chain verification or weak cipher detection
+Web application fingerprinting 
+Resume or retry functionality
+Rate limiting
+
+*Reflection*
+
+This project was quite difficult and challenging, a lot of struggle was had with most part of  the project, i could have improved and applied extra features and features i didnt implment but i could not figure them out.
 
 
 
@@ -93,7 +107,7 @@ This was partially implemented into my project no workers were used and other fe
 
 
 
-References: 
+*References:*
 https://docs.python.org/3/library/argparse.html
 https://www.geeksforgeeks.org/command-line-arguments-in-python/
 https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
