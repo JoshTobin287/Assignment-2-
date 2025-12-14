@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+#A python tool for TCP scanning, HTTP probing and TLS analysis
+
+#Python libraries implemneted
 import argparse
 import socket
 import time
@@ -8,49 +11,49 @@ import ssl
 import re
 import csv
 
-
+#Argument parsing
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Example argparse parser for network scanning flags"
     )
-
+    # File containing one target per line
     parser.add_argument(
         "--targets",
         required=True,
         help="Path to file (one host per line; allow host or host:port)",
     )
-
+    #Ports to scan  
     parser.add_argument(
         "--ports",
         required=True,
         help="Comma list or ranges (e.g., 80,443,8000-8100)",
     )
-
+    #Number of concurent workers
     parser.add_argument(
         "--workers",
         type=int,
         default=20,
         help="Concurrent TCP workers (default 20)",
     )
-
+    #Enable HTTP probing
     parser.add_argument(
         "--http",
         action="store_true",
         help="Probe HTTP(S) services and extract title, meta description, Server header",
     )
-
+     #Enable TLS certificate analysis
     parser.add_argument(
         "--tls",
         action="store_true",
         help="Attempt TLS retrieval for ports that speak TLS",
     )
-
+    #Output file prefix
     parser.add_argument(
         "--output",
         default="",
         help="Path prefix for results; tool writes PREFIX.results.json and PREFIX.results.csv",
     )
-
+      #Timeout value for network connections
     parser.add_argument(
         "--timeout",
         type=float,
@@ -59,8 +62,10 @@ def parse_args():
     )
 
     return parser.parse_args()        
-
+#Helper functions
 def parse_ports(port_string):
+
+    #Converts a comma separated list or range of ports into a sorted list of integers
     ports = set()
     for part in port_string.split(","):
         part = part.strip()
@@ -72,12 +77,15 @@ def parse_ports(port_string):
     return sorted(ports)
 
 def load_targets(path):
+    #Load targets from a file and each non empty line is treated as a host
         with open(path) as f:
             return [line.strip() for line in f if line.strip()]
 
 
 #tcp connect
 def tcp_connect(host, port, timeout):
+
+    # Performs a TCP connect scan against a single host and port and returns open, closed or filtered status
     try:
         s = socket.create_connection((host, port), timeout=timeout)
         s.close()
@@ -87,8 +95,10 @@ def tcp_connect(host, port, timeout):
     except:
         return "filtered"
 
-#banner
+#banner grabbing
 def get_banner(host, port, timeout):
+
+    #Attempts to read an initial banner from an open TCP service and reads up to 4096 bytes
     try:
         s = socket.create_connection((host, port), timeout)
         s.settimeout(2.0)
@@ -103,9 +113,11 @@ def get_banner(host, port, timeout):
     except:
         return None
 
-#http
+#http probing
 def http_probe(host, port, timeout):
-    url = f"http://{host}:{port}/"
+
+    #Performs a simple HTTP GET request on the given host and port and extracts title, meta description, and Server header
+    url = f"http://{host}:{port}/" 
 
     try:
         s = socket.create_connection((host, port), timeout)
@@ -124,16 +136,17 @@ def http_probe(host, port, timeout):
 
     except:
         return None
-
+    #Extracts server header
     match = re.search(r"Server:\s*(.+)\r\n", text, re.IGNORECASE)
     server_header = match.group(1).strip() if match else None
-
+    #Extracts meta description
     match = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', text, re.IGNORECASE)
     meta_description = match.group(1).strip() if match else None
-
+    #Ectracts title
     match = re.search(r"<title>(.*?)</title>", text, re.IGNORECASE | re.DOTALL)
     title = match.group(1).strip() if match else None
 
+    #Returns the all inforamtion 
     result = {
         "url": url,
         "final_url": url,
@@ -146,8 +159,10 @@ def http_probe(host, port, timeout):
     }
     return result
 
-#https
+#TlS certifacte analysis
 def https_probe(host, port, timeout):
+
+    #Establsihes a TLS connection and extracts certifacte infomration
     try:
         ctx = ssl.create_default_context()
         raw = socket.create_connection((host, port), timeout)
@@ -155,13 +170,13 @@ def https_probe(host, port, timeout):
         
         cert = s.getpeercert()
         s.close()
-
+        #Extracts subject common name
         subject = dict(x[0] for x in cert.get("subject", [])) if cert else {}
         cn = subject.get("commonName")
 
         not_after = cert.get("notAfter") 
         expired = False
-
+    #Checks if certifaicate is expired
         if not_after:
             try:
                 exp = datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
