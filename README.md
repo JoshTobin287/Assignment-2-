@@ -118,4 +118,4 @@ https://realpython.com/python-json/
 https://docs.python.org/3/library/csv.html
 https://realpython.com/python-csv/
 Example code used from labs from lab 4.2 and 3.1 from mark cummins files.
-Example code used from Assignemnt 2 brief from mark cummmins files.
+Example code used from Assignemnt 2 brief from mark cummins files.
