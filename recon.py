@@ -11,7 +11,7 @@ import ssl
 import re
 import csv
 
-#Argument parsing
+#This sectionn is argument parsing
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Example argparse parser for network scanning flags"
@@ -62,7 +62,7 @@ def parse_args():
     )
 
     return parser.parse_args()        
-#Helper functions
+#This section is helper functions
 def parse_ports(port_string):
 
     #Converts a comma separated list or range of ports into a sorted list of integers
@@ -82,7 +82,7 @@ def load_targets(path):
             return [line.strip() for line in f if line.strip()]
 
 
-#tcp connect
+#This section is tcp connect
 def tcp_connect(host, port, timeout):
 
     # Performs a TCP connect scan against a single host and port and returns open, closed or filtered status
@@ -95,10 +95,10 @@ def tcp_connect(host, port, timeout):
     except:
         return "filtered"
 
-#banner grabbing
+#This section is banner grabbing
 def get_banner(host, port, timeout):
 
-    #Attempts to read an initial banner from an open TCP service and reads up to 4096 bytes
+    #This cdode attempts to read an initial banner from an open TCP service and reads up to 4096 bytes
     try:
         s = socket.create_connection((host, port), timeout)
         s.settimeout(2.0)
@@ -113,7 +113,7 @@ def get_banner(host, port, timeout):
     except:
         return None
 
-#http probing
+#This section is http probing
 def http_probe(host, port, timeout):
 
     #Performs a simple HTTP GET request on the given host and port and extracts title, meta description, and Server header
@@ -136,17 +136,17 @@ def http_probe(host, port, timeout):
 
     except:
         return None
-    #Extracts server header
+    # This code extracts server header
     match = re.search(r"Server:\s*(.+)\r\n", text, re.IGNORECASE)
     server_header = match.group(1).strip() if match else None
     #Extracts meta description
     match = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', text, re.IGNORECASE)
     meta_description = match.group(1).strip() if match else None
-    #Ectracts title
+    # This code Ectracts title
     match = re.search(r"<title>(.*?)</title>", text, re.IGNORECASE | re.DOTALL)
     title = match.group(1).strip() if match else None
 
-    #Returns the all inforamtion 
+    #This code returns the all inforamtion 
     result = {
         "url": url,
         "final_url": url,
@@ -159,10 +159,10 @@ def http_probe(host, port, timeout):
     }
     return result
 
-#TlS certifacte analysis
+#This sectiob is TlS certifacte analysis
 def https_probe(host, port, timeout):
 
-    #Establsihes a TLS connection and extracts certifacte infomration
+    # This code Establsihes a TLS connection and extracts certifacte infomration
     try:
         ctx = ssl.create_default_context()
         raw = socket.create_connection((host, port), timeout)
@@ -170,13 +170,13 @@ def https_probe(host, port, timeout):
         
         cert = s.getpeercert()
         s.close()
-        #Extracts subject common name
+        # This code Extracts subject common name
         subject = dict(x[0] for x in cert.get("subject", [])) if cert else {}
         cn = subject.get("commonName")
 
         not_after = cert.get("notAfter") 
         expired = False
-    #Checks if certifaicate is expired
+    # This code Checks if certifaicate is expired
         if not_after:
             try:
                 exp = datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
@@ -194,8 +194,11 @@ def https_probe(host, port, timeout):
 
     except:
         return None
+
+#This section is scan port 
 def scan_port(host, port, timeout, do_http, do_tls, retries):
 
+    #This code scans a single port and performs HTTTP probing or TlS analysis
     for _ in range(retries + 1):
         status = tcp_connect(host, port, timeout)
         if status == "open":
@@ -214,7 +217,10 @@ def scan_port(host, port, timeout, do_http, do_tls, retries):
             entry["banner"] = entry["tls"]["subject_cn"]
     return entry
 
+#This section is csv output
 def save_csv(results, prefix):
+
+    #This code saves scan results to a csv file
     with open(f"{prefix}results.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([
@@ -240,6 +246,8 @@ def save_csv(results, prefix):
 
 #main
 def main():
+
+    #This code is the entry point to the program, it handles argumnet parsing, scanning and output 
     args = parse_args()
     print("Arguments Received:")
     print(f"  targets : {args.targets}")
@@ -256,6 +264,7 @@ def main():
     print(f"\nLoaded {len(targets)} targets and {len(ports)} ports")
     print("TCP Connect Scan\n")
 
+    #This code is report structure
     results = {
         "meta": {
             "run_started": datetime.now(timezone.utc).isoformat(),
@@ -265,6 +274,7 @@ def main():
         "targets": {host: {"ports": {}} for host in targets}
     }
 
+    #This code performs the scan
     for host in targets:
         print(f"--- {host} ---")
         for port in ports:
@@ -278,10 +288,12 @@ def main():
             else:
                 print(f"{host}:{port} -> {entry['status']}")
 
+    #This code saves JSON output
     output_file = f"{args.output}results.json"
     with open(output_file, "w") as f:
             json.dump(results, f, indent=2)
 
+    #This code saves csv output
     save_csv(results, args.output)
 
     print(f"\nResults saved to: {output_file}")
