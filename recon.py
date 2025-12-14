@@ -142,7 +142,7 @@ def http_probe(host, port, timeout):
     #Extracts meta description
     match = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', text, re.IGNORECASE)
     meta_description = match.group(1).strip() if match else None
-    # This code Ectracts title
+    # This code Extracts title
     match = re.search(r"<title>(.*?)</title>", text, re.IGNORECASE | re.DOTALL)
     title = match.group(1).strip() if match else None
 
@@ -159,7 +159,7 @@ def http_probe(host, port, timeout):
     }
     return result
 
-#This sectiob is TlS certifacte analysis
+#This section is TlS certifacte analysis
 def https_probe(host, port, timeout):
 
     # This code Establsihes a TLS connection and extracts certifacte infomration
